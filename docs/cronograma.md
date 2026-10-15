@@ -15,7 +15,7 @@ O projeto `projetoMdl` (React+antd+Express, condomínio) é grande demais para t
 - **Bugs plantados** (flag via env `BUGS=1`) para exercitar bug lifecycle e RCA.
 
 ## Fluxo mapeado às fases
-1. **Planejamento**: 3–4 User Stories com ACs em `docs/stories/*.md`; usar Claude Code para extrair cenários → `docs/cenarios.md`.
+1. **Planejamento**: 3–4 User Stories com ACs em `docs/stories.md`; usar Claude Code para extrair cenários → `docs/cenarios.md`.
 2. **Ambiente**: branch `feature/test-*` por story, `.env.example`, `playwright.config.ts` com `baseURL` via env.
 3. **Código**: Page Objects, fixtures Playwright, camada de API (`request` context) para setup, cenários feliz + exceção; um teste de API puro e um teste com `page.route` (mock).
 4. **Validação local**: `--headed`, `--ui`, headless, `--repeat-each=10` para caçar flakiness; trace viewer.

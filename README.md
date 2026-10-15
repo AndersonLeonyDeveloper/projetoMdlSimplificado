@@ -21,6 +21,7 @@ The user stories and acceptance criteria are in [`docs/stories.md`](docs/stories
 Requires Node.js 20+.
 
 ```bash
+cd app
 npm run install:all
 npm run dev:server   # API on http://localhost:3001
 npm run dev:client   # UI on http://localhost:5173 (proxies /api to the server)
@@ -58,15 +59,18 @@ lists the active ones.
 | `cancel-window` | Reservations can be canceled less than 24 hours in advance | S10 · AC2 |
 
 ```bash
+cd app
 npm run dev:server:bugs
 ```
 
 ## Project layout
 
 ```
-server/   Express API (in-memory store)
-client/   React + Vite + TypeScript UI
-docs/     User stories and pending work
+app/
+  server/   Express API (in-memory store)
+  client/   React + Vite + TypeScript UI
+docs/       Study plan, user stories and pending work
+test/       Test projects (Playwright, to be added)
 ```
 
 Elements in the UI expose `data-testid` attributes for stable selectors.

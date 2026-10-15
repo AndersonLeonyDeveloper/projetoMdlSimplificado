@@ -1,6 +1,6 @@
 # Pending work (Trabalho pendente)
 
-Status of the project against [`cronograma.md`](../cronograma.md).
+Status of the project against [`cronograma.md`](cronograma.md).
 (Situação do projeto em relação ao cronograma.)
 
 ## Done (Concluído)
