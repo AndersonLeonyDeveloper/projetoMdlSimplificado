@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { RequireRole } from './auth/RequireRole';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { LoginPage } from './pages/LoginPage';
+import { NoticesPage } from './pages/NoticesPage';
 import { ResidentHome } from './pages/ResidentHome';
 
 export function App() {
@@ -15,6 +16,24 @@ export function App() {
         element={
           <RequireRole role="admin">
             <AdminDashboard />
+          </RequireRole>
+        }
+      />
+
+      <Route
+        path="/admin/notices"
+        element={
+          <RequireRole role="admin">
+            <NoticesPage canManage />
+          </RequireRole>
+        }
+      />
+
+      <Route
+        path="/notices"
+        element={
+          <RequireRole role="resident">
+            <NoticesPage canManage={false} />
           </RequireRole>
         }
       />
