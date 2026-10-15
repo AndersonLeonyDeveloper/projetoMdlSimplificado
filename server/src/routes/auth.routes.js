@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
 
+import { hasBug } from '../config.js';
 import { badRequest, locked, unauthorized } from '../errors.js';
 import { authenticate } from '../middleware/auth.js';
 import { now, publicUser, state } from '../store.js';
@@ -43,7 +44,9 @@ router.post('/login', (req, res, next) => {
 
   if (user.password !== password) {
     attempts.failures += 1;
-    if (attempts.failures >= MAX_FAILED_ATTEMPTS) {
+    // BUG(lockout): off-by-one, the account is only locked on the 4th failure.
+    const threshold = hasBug('lockout') ? MAX_FAILED_ATTEMPTS + 1 : MAX_FAILED_ATTEMPTS;
+    if (attempts.failures >= threshold) {
       attempts.lockedUntil = new Date(now().getTime() + LOCKOUT_MINUTES * 60000);
     }
     return next(unauthorized(INVALID_CREDENTIALS));

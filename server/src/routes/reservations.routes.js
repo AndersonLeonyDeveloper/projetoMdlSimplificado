@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { hasBug } from '../config.js';
 import { badRequest, conflict, forbidden, notFound } from '../errors.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import {
@@ -81,7 +82,9 @@ router.post('/', requireRole('resident'), (req, res, next) => {
   const activeCount = state.reservations.filter(
     (item) => isActive(item) && item.userId === req.user.id,
   ).length;
-  if (activeCount >= MAX_ACTIVE_RESERVATIONS) {
+  // BUG(reservation-limit): off-by-one, a third active reservation is accepted.
+  const limit = hasBug('reservation-limit') ? MAX_ACTIVE_RESERVATIONS + 1 : MAX_ACTIVE_RESERVATIONS;
+  if (activeCount >= limit) {
     return next(
       conflict(
         `You can have at most ${MAX_ACTIVE_RESERVATIONS} active reservations`,
@@ -113,7 +116,8 @@ router.delete('/:id', requireRole('resident'), (req, res, next) => {
   }
 
   const hoursUntilStart = (slotStart(reservation.date, reservation.slot) - now()) / 3600000;
-  if (hoursUntilStart < CANCELLATION_WINDOW_HOURS) {
+  // BUG(cancel-window): the 24-hour rule is not enforced.
+  if (!hasBug('cancel-window') && hoursUntilStart < CANCELLATION_WINDOW_HOURS) {
     return next(
       conflict(
         `Reservations can only be canceled at least ${CANCELLATION_WINDOW_HOURS} hours in advance`,
