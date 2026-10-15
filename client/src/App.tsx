@@ -4,6 +4,7 @@ import { RequireRole } from './auth/RequireRole';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { LoginPage } from './pages/LoginPage';
 import { NoticesPage } from './pages/NoticesPage';
+import { ReservationsPage } from './pages/ReservationsPage';
 import { ResidentHome } from './pages/ResidentHome';
 
 export function App() {
@@ -34,6 +35,24 @@ export function App() {
         element={
           <RequireRole role="resident">
             <NoticesPage canManage={false} />
+          </RequireRole>
+        }
+      />
+
+      <Route
+        path="/admin/reservations"
+        element={
+          <RequireRole role="admin">
+            <ReservationsPage isAdmin />
+          </RequireRole>
+        }
+      />
+
+      <Route
+        path="/reservations"
+        element={
+          <RequireRole role="resident">
+            <ReservationsPage isAdmin={false} />
           </RequireRole>
         }
       />
