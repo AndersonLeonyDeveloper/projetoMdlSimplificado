@@ -4,6 +4,7 @@ import express from 'express';
 import { config } from './config.js';
 import { HttpError } from './errors.js';
 import authRoutes from './routes/auth.routes.js';
+import noticesRoutes from './routes/notices.routes.js';
 import testRoutes from './routes/test.routes.js';
 
 export function createApp() {
@@ -17,6 +18,7 @@ export function createApp() {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/notices', noticesRoutes);
   if (config.testApiEnabled) app.use('/api/test', testRoutes);
 
   app.use('/api', (_req, res) => {
