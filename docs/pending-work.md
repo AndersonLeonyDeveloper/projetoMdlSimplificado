@@ -14,8 +14,9 @@ Status of the project against [`cronograma.md`](cronograma.md).
 ## Not implemented yet (Ainda não implementado)
 
 ### Tests (deliberately left for later)
-- [ ] Playwright setup: `playwright.config.ts` with `baseURL` from env, `webServer` for client and server, `.env.example`.
-- [ ] TypeScript project for the tests (`test/playwright`), fixtures and Page Objects (Login, Notices, Reservations).
+- [x] Playwright project created at `test/playwright` (own `package.json`, `playwright.config.ts`, example spec, `LoginPage`), outside `app/`.
+- [ ] Playwright setup: `baseURL` from env, `webServer` for client and server, `.env.example`.
+- [ ] Fixtures and the remaining Page Objects (Notices, Reservations) in `test/playwright`.
 - [ ] API data setup layer (using `/api/test/reset`, `/seed`, `/advance-clock`).
 - [ ] E2E scenarios per story (happy path + exceptions), titles prefixed with the Jira key, e.g. `[PROJMDL-4] ...`.
 - [ ] API-level tests (e.g. 403 for resident writes on notices, S6 · AC4) and a `page.route` mock test.

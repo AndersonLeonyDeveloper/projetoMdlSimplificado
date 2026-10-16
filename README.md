@@ -6,6 +6,28 @@ tracking and AI-assisted testing.
 
 The app is intentionally small. The goal is the testing pipeline, not the product.
 
+## About the application
+
+Lagoon Community is a simplified management portal for a residential condominium. It connects the
+administration with the residents in a single place and has two user profiles:
+
+- **Admin**: publishes community notices and has a read-only view of every reservation in the condominium.
+- **Resident**: reads the notices and books the shared common areas (Party Room and BBQ Area).
+
+**Main features**
+
+- **Authentication and access control.** Login with role-based routing: each profile lands on its own
+  home page and cannot open the other profile's pages. An account is locked for 5 minutes after 3 failed
+  login attempts.
+- **Notice board.** Admins create, edit and delete notices (with a confirmation dialog). Residents browse
+  them with search by title and pagination (10 per page).
+- **Common-area reservations.** Residents pick an area, a date and a time slot (morning, afternoon or
+  evening). The app rejects conflicting bookings, limits each resident to 2 active reservations, and only
+  allows cancellation up to 24 hours before the slot starts.
+
+**Tech stack.** React 19, TypeScript, Vite and React Router on the front end; Node.js and Express on the
+back end, with an in-memory store (no database). The UI supports light and dark mode and is responsive.
+
 ## Modules
 
 | Epic | Description |
@@ -70,7 +92,20 @@ app/
   server/   Express API (in-memory store)
   client/   React + Vite + TypeScript UI
 docs/       Study plan, user stories and pending work
-test/       Test projects (Playwright, to be added)
+test/
+  playwright/   Playwright E2E project (own package.json and config; sits next to app/)
 ```
 
 Elements in the UI expose `data-testid` attributes for stable selectors.
+
+## Running the Playwright tests
+
+Requires the app to be running (see "Running locally") and Node.js 20+.
+
+```bash
+cd test/playwright
+npm install
+npx playwright install      # first time only: downloads the browsers
+npx playwright test         # or: npm test / npm run test:headed
+npx playwright show-report  # HTML report of the last run
+```
