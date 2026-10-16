@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 
 import { homePathFor, useAuth } from '../auth/AuthContext';
 import { ApiError } from '../api';
+import { WaveIcon } from '../components/icons';
 
 export function LoginPage() {
   const { user, loading, login } = useAuth();
@@ -39,6 +40,9 @@ export function LoginPage() {
   return (
     <div className="login-wrapper">
       <form className="card login-card" onSubmit={handleSubmit} noValidate data-testid="login-form">
+        <span className="brand-mark">
+          <WaveIcon />
+        </span>
         <h1>Lagoon Community</h1>
         <p className="muted">Log in to continue</p>
 
