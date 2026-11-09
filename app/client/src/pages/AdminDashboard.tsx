@@ -2,23 +2,25 @@ import { Link } from 'react-router-dom';
 
 import { useAuth } from '../auth/AuthContext';
 import { ArrowIcon, CalendarIcon, MegaphoneIcon } from '../components/icons';
+import { useI18n } from '../i18n/I18nProvider';
 import { Layout } from '../components/Layout';
 import { adminNav } from '../navigation';
 
 export function AdminDashboard() {
   const { user } = useAuth();
+  const { t } = useI18n();
 
   return (
     <Layout nav={adminNav}>
-      <h1 data-testid="admin-dashboard-title">Admin dashboard</h1>
-      <p className="lead">Welcome, {user?.name}.</p>
+      <h1 data-testid="admin-dashboard-title">{t('admin.title')}</h1>
+      <p className="lead">{t('common.welcome', { name: user?.name ?? '' })}</p>
       <div className="grid">
         <Link className="card tile" to="/admin/notices" data-testid="tile-manage-notices">
           <span className="tile-icon">
             <MegaphoneIcon />
           </span>
-          Manage notices
-          <span className="tile-desc">Publish, edit and remove community announcements.</span>
+          {t('admin.manageNotices')}
+          <span className="tile-desc">{t('admin.manageNoticesDesc')}</span>
           <span className="tile-arrow">
             <ArrowIcon />
           </span>
@@ -27,8 +29,8 @@ export function AdminDashboard() {
           <span className="tile-icon">
             <CalendarIcon />
           </span>
-          View all reservations
-          <span className="tile-desc">See every common-area booking across the community.</span>
+          {t('admin.allReservations')}
+          <span className="tile-desc">{t('admin.allReservationsDesc')}</span>
           <span className="tile-arrow">
             <ArrowIcon />
           </span>

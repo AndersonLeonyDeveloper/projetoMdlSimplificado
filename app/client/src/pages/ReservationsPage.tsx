@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { api } from '../api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Layout } from '../components/Layout';
+import { useI18n } from '../i18n/I18nProvider';
 import { adminNav, residentNav } from '../navigation';
 import type { Area, Reservation, Slot } from '../types';
 
@@ -15,6 +16,7 @@ function todayLocal() {
 
 // Residents book and cancel; admins get a read-only table of every reservation.
 export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
+  const { t, translateError, translateData } = useI18n();
   const [options, setOptions] = useState<{ areas: Area[]; slots: Slot[] }>({ areas: [], slots: [] });
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [area, setArea] = useState('');
@@ -31,8 +33,8 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
 
   useEffect(() => {
     api<{ areas: Area[]; slots: Slot[] }>('/reservations/options').then(setOptions);
-    load().catch((err) => setError(err.message));
-  }, [load]);
+    load().catch((err) => setError(translateError(err, 'common.somethingWrong')));
+  }, [load, translateError]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -40,19 +42,19 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
     setSuccess('');
 
     if (!area || !date || !slot) {
-      setError('Area, date and time slot are required');
+      setError(t('reservations.fieldsRequired'));
       return;
     }
 
     try {
       await api('/reservations', { method: 'POST', body: { area, date, slot } });
-      setSuccess('Reservation confirmed');
+      setSuccess(t('reservations.confirmed'));
       setArea('');
       setDate('');
       setSlot('');
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to create the reservation');
+      setError(translateError(err, 'reservations.createFailed'));
     }
   }
 
@@ -62,10 +64,10 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
     setSuccess('');
     try {
       await api(`/reservations/${canceling.id}`, { method: 'DELETE' });
-      setSuccess('Reservation canceled');
+      setSuccess(t('reservations.canceled'));
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to cancel the reservation');
+      setError(translateError(err, 'reservations.cancelFailed'));
     } finally {
       setCanceling(null);
     }
@@ -73,7 +75,7 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
 
   return (
     <Layout nav={isAdmin ? adminNav : residentNav}>
-      <h1 data-testid="reservations-title">{isAdmin ? 'All reservations' : 'My reservations'}</h1>
+      <h1 data-testid="reservations-title">{isAdmin ? t('reservations.titleAdmin') : t('reservations.titleResident')}</h1>
 
       {error && (
         <div role="alert" className="alert alert-error" data-testid="reservation-error">
@@ -88,20 +90,20 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
 
       {!isAdmin && (
         <form className="card" onSubmit={handleSubmit} noValidate data-testid="reservation-form" style={{ marginBottom: '1.5rem' }}>
-          <h2>Book a common area</h2>
+          <h2>{t('reservations.book')}</h2>
           <label>
-            Area
+            {t('reservations.area')}
             <select value={area} onChange={(event) => setArea(event.target.value)} data-testid="reservation-area">
-              <option value="">Select an area</option>
+              <option value="">{t('reservations.selectArea')}</option>
               {options.areas.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.name}
+                  {translateData('area', item.id, item.name)}
                 </option>
               ))}
             </select>
           </label>
           <label>
-            Date
+            {t('reservations.date')}
             <input
               type="date"
               min={todayLocal()}
@@ -111,33 +113,33 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
             />
           </label>
           <label>
-            Time slot
+            {t('reservations.slot')}
             <select value={slot} onChange={(event) => setSlot(event.target.value)} data-testid="reservation-slot">
-              <option value="">Select a time slot</option>
+              <option value="">{t('reservations.selectSlot')}</option>
               {options.slots.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.label}
+                  {translateData('slot', item.id, item.label)}
                 </option>
               ))}
             </select>
           </label>
           <button type="submit" data-testid="reservation-submit">
-            Book
+            {t('reservations.submit')}
           </button>
         </form>
       )}
 
       {reservations.length === 0 ? (
-        <p data-testid="reservations-empty">No reservations yet</p>
+        <p data-testid="reservations-empty">{t('reservations.empty')}</p>
       ) : (
         <table data-testid="reservation-table">
           <thead>
             <tr>
-              {isAdmin && <th>Resident</th>}
-              <th>Area</th>
-              <th>Date</th>
-              <th>Time slot</th>
-              <th>Status</th>
+              {isAdmin && <th>{t('reservations.resident')}</th>}
+              <th>{t('reservations.area')}</th>
+              <th>{t('reservations.date')}</th>
+              <th>{t('reservations.slot')}</th>
+              <th>{t('reservations.status')}</th>
               {!isAdmin && <th />}
             </tr>
           </thead>
@@ -145,19 +147,19 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
             {reservations.map((item) => (
               <tr key={item.id} data-testid="reservation-row">
                 {isAdmin && <td data-testid="reservation-resident">{item.residentName}</td>}
-                <td data-testid="reservation-area-name">{item.areaName}</td>
+                <td data-testid="reservation-area-name">{translateData('area', item.area, item.areaName)}</td>
                 <td data-testid="reservation-date-value">{item.date}</td>
-                <td data-testid="reservation-slot-label">{item.slotLabel}</td>
+                <td data-testid="reservation-slot-label">{translateData('slot', item.slot, item.slotLabel)}</td>
                 <td>
                   <span className={`badge badge-${item.status}`} data-testid="reservation-status">
-                    {item.status}
+                    {translateData('status', item.status, item.status)}
                   </span>
                 </td>
                 {!isAdmin && (
                   <td>
                     {item.status === 'Confirmed' && (
                       <button type="button" className="danger" onClick={() => setCanceling(item)} data-testid="reservation-cancel">
-                        Cancel reservation
+                        {t('reservations.cancel')}
                       </button>
                     )}
                   </td>
@@ -170,9 +172,12 @@ export function ReservationsPage({ isAdmin }: { isAdmin: boolean }) {
 
       {canceling && (
         <ConfirmDialog
-          title="Cancel reservation"
-          message={`Cancel the ${canceling.areaName} reservation on ${canceling.date}?`}
-          confirmLabel="Cancel reservation"
+          title={t('reservations.cancel')}
+          message={t('reservations.cancelMessage', {
+            area: translateData('area', canceling.area, canceling.areaName),
+            date: canceling.date,
+          })}
+          confirmLabel={t('reservations.cancel')}
           onConfirm={confirmCancel}
           onCancel={() => setCanceling(null)}
         />

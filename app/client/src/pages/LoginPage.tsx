@@ -2,12 +2,13 @@ import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import { homePathFor, useAuth } from '../auth/AuthContext';
-import { ApiError } from '../api';
+import { useI18n } from '../i18n/I18nProvider';
 import { WaveIcon } from '../components/icons';
 
 export function LoginPage() {
   const { user, loading, login } = useAuth();
   const navigate = useNavigate();
+  const { t, translateError } = useI18n();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
@@ -21,8 +22,8 @@ export function LoginPage() {
     setFormError('');
 
     const nextErrors: typeof errors = {};
-    if (!username.trim()) nextErrors.username = 'Username is required';
-    if (!password) nextErrors.password = 'Password is required';
+    if (!username.trim()) nextErrors.username = t('login.usernameRequired');
+    if (!password) nextErrors.password = t('login.passwordRequired');
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
@@ -31,7 +32,7 @@ export function LoginPage() {
       const loggedUser = await login(username.trim(), password);
       navigate(homePathFor(loggedUser), { replace: true });
     } catch (error) {
-      setFormError(error instanceof ApiError ? error.message : 'Unable to log in');
+      setFormError(translateError(error, 'login.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -43,8 +44,8 @@ export function LoginPage() {
         <span className="brand-mark">
           <WaveIcon />
         </span>
-        <h1>Lagoon Community</h1>
-        <p className="muted">Log in to continue</p>
+        <h1>{t('app.name')}</h1>
+        <p className="muted">{t('login.subtitle')}</p>
 
         {formError && (
           <div role="alert" className="alert alert-error" data-testid="login-error">
@@ -53,7 +54,7 @@ export function LoginPage() {
         )}
 
         <label>
-          Username
+          {t('login.username')}
           <input
             value={username}
             onChange={(event) => setUsername(event.target.value)}
@@ -68,7 +69,7 @@ export function LoginPage() {
         </label>
 
         <label>
-          Password
+          {t('login.password')}
           <input
             type="password"
             value={password}
@@ -84,7 +85,7 @@ export function LoginPage() {
         </label>
 
         <button type="submit" disabled={submitting} data-testid="login-submit">
-          Log in
+          {t('login.submit')}
         </button>
       </form>
     </div>

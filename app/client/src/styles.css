@@ -246,8 +246,16 @@ td button { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pop { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* Fixed language dropdown, top-right. The header reserves room so it never covers "Log out". */
+.lang-switcher {
+  position: fixed; top: 0.85rem; right: 1.25rem; z-index: 30;
+  width: auto; padding: 0.4rem 0.7rem; font-size: 0.85rem; font-weight: 600;
+  background: var(--surface); box-shadow: var(--shadow-sm);
+}
+.header { padding-right: 9.5rem; }
+
 @media (max-width: 720px) {
-  .header { flex-wrap: wrap; gap: 0.75rem; padding: 0.7rem 1rem; }
+  .header { flex-wrap: wrap; gap: 0.75rem; padding: 0.7rem 8.5rem 0.7rem 1rem; }
   .nav { order: 3; width: 100%; overflow-x: auto; }
   .user .user-name { display: none; }
   .content { padding-top: 1.5rem; }

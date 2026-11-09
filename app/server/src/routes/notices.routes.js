@@ -15,18 +15,18 @@ function validate(body) {
   const title = typeof body?.title === 'string' ? body.title.trim() : '';
   const text = typeof body?.body === 'string' ? body.body.trim() : '';
 
-  if (!title) throw badRequest('Title is required');
+  if (!title) throw badRequest('Title is required', 'TITLE_REQUIRED');
   if (title.length > TITLE_MAX_LENGTH) {
-    throw badRequest(`Title must be at most ${TITLE_MAX_LENGTH} characters`);
+    throw badRequest(`Title must be at most ${TITLE_MAX_LENGTH} characters`, 'TITLE_TOO_LONG', { max: TITLE_MAX_LENGTH });
   }
-  if (!text) throw badRequest('Body is required');
+  if (!text) throw badRequest('Body is required', 'BODY_REQUIRED');
 
   return { title, body: text };
 }
 
 function findNotice(id) {
   const notice = state.notices.find((candidate) => candidate.id === Number(id));
-  if (!notice) throw notFound('Notice not found');
+  if (!notice) throw notFound('Notice not found', 'NOTICE_NOT_FOUND');
   return notice;
 }
 

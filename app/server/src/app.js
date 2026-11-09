@@ -30,7 +30,7 @@ export function createApp() {
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {
     if (err instanceof HttpError) {
-      return res.status(err.status).json({ error: { code: err.code, message: err.message } });
+      return res.status(err.status).json({ error: { code: err.code, message: err.message, params: err.params } });
     }
     console.error(err);
     res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Unexpected error' } });

@@ -2,23 +2,25 @@ import { Link } from 'react-router-dom';
 
 import { useAuth } from '../auth/AuthContext';
 import { ArrowIcon, CalendarIcon, MegaphoneIcon } from '../components/icons';
+import { useI18n } from '../i18n/I18nProvider';
 import { Layout } from '../components/Layout';
 import { residentNav } from '../navigation';
 
 export function ResidentHome() {
   const { user } = useAuth();
+  const { t } = useI18n();
 
   return (
     <Layout nav={residentNav}>
-      <h1 data-testid="resident-home-title">Resident home</h1>
-      <p className="lead">Welcome, {user?.name}.</p>
+      <h1 data-testid="resident-home-title">{t('home.title')}</h1>
+      <p className="lead">{t('common.welcome', { name: user?.name ?? '' })}</p>
       <div className="grid">
         <Link className="card tile" to="/notices" data-testid="tile-notices">
           <span className="tile-icon">
             <MegaphoneIcon />
           </span>
-          Community notices
-          <span className="tile-desc">Stay up to date with the latest announcements.</span>
+          {t('home.notices')}
+          <span className="tile-desc">{t('home.noticesDesc')}</span>
           <span className="tile-arrow">
             <ArrowIcon />
           </span>
@@ -27,8 +29,8 @@ export function ResidentHome() {
           <span className="tile-icon">
             <CalendarIcon />
           </span>
-          My reservations
-          <span className="tile-desc">Book common areas and manage your bookings.</span>
+          {t('home.reservations')}
+          <span className="tile-desc">{t('home.reservationsDesc')}</span>
           <span className="tile-arrow">
             <ArrowIcon />
           </span>

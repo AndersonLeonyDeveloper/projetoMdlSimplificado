@@ -11,6 +11,7 @@ export class ApiError extends Error {
     public status: number,
     public code: string,
     message: string,
+    public params?: Record<string, string | number>,
   ) {
     super(message);
   }
@@ -35,6 +36,7 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
       response.status,
       data?.error?.code ?? 'UNKNOWN',
       data?.error?.message ?? 'Something went wrong',
+      data?.error?.params,
     );
   }
   return data as T;

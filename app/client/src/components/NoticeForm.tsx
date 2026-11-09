@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 
+import { useI18n } from '../i18n/I18nProvider';
 import type { Notice } from '../types';
 
 interface NoticeFormProps {
@@ -9,6 +10,7 @@ interface NoticeFormProps {
 }
 
 export function NoticeForm({ notice, onSubmit, onCancel }: NoticeFormProps) {
+  const { t, translateError } = useI18n();
   const [title, setTitle] = useState(notice?.title ?? '');
   const [body, setBody] = useState(notice?.body ?? '');
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export function NoticeForm({ notice, onSubmit, onCancel }: NoticeFormProps) {
         setBody('');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to save the notice');
+      setError(translateError(err, 'noticeForm.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -33,18 +35,18 @@ export function NoticeForm({ notice, onSubmit, onCancel }: NoticeFormProps) {
 
   return (
     <form className="card" onSubmit={handleSubmit} noValidate data-testid="notice-form">
-      <h2>{notice ? 'Edit notice' : 'New notice'}</h2>
+      <h2>{notice ? t('noticeForm.edit') : t('noticeForm.new')}</h2>
       {error && (
         <div role="alert" className="alert alert-error" data-testid="notice-form-error">
           {error}
         </div>
       )}
       <label>
-        Title
+        {t('noticeForm.title')}
         <input value={title} onChange={(event) => setTitle(event.target.value)} data-testid="notice-title-input" />
       </label>
       <label>
-        Body
+        {t('noticeForm.body')}
         <textarea
           rows={4}
           value={body}
@@ -54,11 +56,11 @@ export function NoticeForm({ notice, onSubmit, onCancel }: NoticeFormProps) {
       </label>
       <div className="row">
         <button type="submit" disabled={submitting} data-testid="notice-submit">
-          {notice ? 'Save changes' : 'Publish notice'}
+          {notice ? t('noticeForm.save') : t('noticeForm.publish')}
         </button>
         {onCancel && (
           <button type="button" className="secondary" onClick={onCancel} data-testid="notice-form-cancel">
-            Cancel
+            {t('common.cancel')}
           </button>
         )}
       </div>

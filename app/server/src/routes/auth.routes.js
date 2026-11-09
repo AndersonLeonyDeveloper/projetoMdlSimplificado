@@ -24,19 +24,19 @@ router.post('/login', (req, res, next) => {
   const { username, password } = req.body ?? {};
 
   if (!username || !password) {
-    return next(badRequest('Username and password are required'));
+    return next(badRequest('Username and password are required', 'CREDENTIALS_REQUIRED'));
   }
 
   const user = state.users.find((candidate) => candidate.username === username);
   // Unknown users get the same response as a wrong password.
-  if (!user) return next(unauthorized(INVALID_CREDENTIALS));
+  if (!user) return next(unauthorized(INVALID_CREDENTIALS, 'INVALID_CREDENTIALS'));
 
   const attempts = getAttempts(username);
 
   if (attempts.lockedUntil) {
     if (attempts.lockedUntil > now()) {
       const minutes = Math.ceil((attempts.lockedUntil - now()) / 60000);
-      return next(locked(`Account locked. Try again in ${minutes} minute(s).`));
+      return next(locked(`Account locked. Try again in ${minutes} minute(s).`, { minutes }));
     }
     attempts.failures = 0;
     attempts.lockedUntil = null;
@@ -49,7 +49,7 @@ router.post('/login', (req, res, next) => {
     if (attempts.failures >= threshold) {
       attempts.lockedUntil = new Date(now().getTime() + LOCKOUT_MINUTES * 60000);
     }
-    return next(unauthorized(INVALID_CREDENTIALS));
+    return next(unauthorized(INVALID_CREDENTIALS, 'INVALID_CREDENTIALS'));
   }
 
   attempts.failures = 0;

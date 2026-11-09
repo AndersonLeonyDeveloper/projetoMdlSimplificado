@@ -37,8 +37,8 @@ router.get('/options', (_req, res) => {
 // Which slots are already taken for an area on a given date.
 router.get('/availability', (req, res, next) => {
   const { area, date } = req.query;
-  if (!isValidArea(area)) return next(badRequest('A valid area is required'));
-  if (!isValidDate(date)) return next(badRequest('A valid date (YYYY-MM-DD) is required'));
+  if (!isValidArea(area)) return next(badRequest('A valid area is required', 'INVALID_AREA'));
+  if (!isValidDate(date)) return next(badRequest('A valid date (YYYY-MM-DD) is required', 'INVALID_DATE'));
 
   const taken = state.reservations
     .filter((item) => isActive(item) && item.area === area && item.date === date)
@@ -62,11 +62,11 @@ router.post('/', requireRole('resident'), (req, res, next) => {
   const { area, date, slot } = req.body ?? {};
 
   if (!area || !date || !slot) {
-    return next(badRequest('Area, date and time slot are required'));
+    return next(badRequest('Area, date and time slot are required', 'RESERVATION_FIELDS_REQUIRED'));
   }
-  if (!isValidArea(area)) return next(badRequest('Unknown area'));
-  if (!isValidSlot(slot)) return next(badRequest('Unknown time slot'));
-  if (!isValidDate(date)) return next(badRequest('Date must be a valid YYYY-MM-DD value'));
+  if (!isValidArea(area)) return next(badRequest('Unknown area', 'INVALID_AREA'));
+  if (!isValidSlot(slot)) return next(badRequest('Unknown time slot', 'INVALID_SLOT'));
+  if (!isValidDate(date)) return next(badRequest('Date must be a valid YYYY-MM-DD value', 'INVALID_DATE'));
 
   if (date < formatDate(now())) {
     return next(badRequest('Reservations cannot be made for past dates', 'PAST_DATE'));
@@ -89,6 +89,7 @@ router.post('/', requireRole('resident'), (req, res, next) => {
       conflict(
         `You can have at most ${MAX_ACTIVE_RESERVATIONS} active reservations`,
         'RESERVATION_LIMIT_REACHED',
+        { max: MAX_ACTIVE_RESERVATIONS },
       ),
     );
   }
@@ -109,7 +110,7 @@ router.post('/', requireRole('resident'), (req, res, next) => {
 // Cancels (does not delete) a reservation, keeping it in the history.
 router.delete('/:id', requireRole('resident'), (req, res, next) => {
   const reservation = state.reservations.find((item) => item.id === Number(req.params.id));
-  if (!reservation) return next(notFound('Reservation not found'));
+  if (!reservation) return next(notFound('Reservation not found', 'RESERVATION_NOT_FOUND'));
   if (reservation.userId !== req.user.id) return next(forbidden());
   if (!isActive(reservation)) {
     return next(conflict('Reservation is already canceled', 'ALREADY_CANCELED'));
@@ -122,6 +123,7 @@ router.delete('/:id', requireRole('resident'), (req, res, next) => {
       conflict(
         `Reservations can only be canceled at least ${CANCELLATION_WINDOW_HOURS} hours in advance`,
         'CANCELLATION_WINDOW_CLOSED',
+        { hours: CANCELLATION_WINDOW_HOURS },
       ),
     );
   }

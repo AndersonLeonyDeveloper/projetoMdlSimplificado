@@ -4,11 +4,13 @@ import { api } from '../api';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Layout } from '../components/Layout';
 import { NoticeForm } from '../components/NoticeForm';
+import { useI18n } from '../i18n/I18nProvider';
 import { adminNav, residentNav } from '../navigation';
 import type { Notice, NoticePage } from '../types';
 
 // Shared by both roles. Only the admin sees the write controls.
 export function NoticesPage({ canManage }: { canManage: boolean }) {
+  const { t, translateError, formatDateTime } = useI18n();
   const [data, setData] = useState<NoticePage | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -22,9 +24,9 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
       setData(await api<NoticePage>(`/notices?${query}`));
       setError('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load notices');
+      setError(translateError(err, 'notices.loadFailed'));
     }
-  }, [page, search]);
+  }, [page, search, translateError]);
 
   useEffect(() => {
     load();
@@ -51,13 +53,13 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
       await load();
     } catch (err) {
       setDeleting(null);
-      setError(err instanceof Error ? err.message : 'Unable to delete the notice');
+      setError(translateError(err, 'notices.deleteFailed'));
     }
   }
 
   return (
     <Layout nav={canManage ? adminNav : residentNav}>
-      <h1 data-testid="notices-title">{canManage ? 'Manage notices' : 'Community notices'}</h1>
+      <h1 data-testid="notices-title">{canManage ? t('notices.titleAdmin') : t('notices.titleResident')}</h1>
 
       {error && (
         <div role="alert" className="alert alert-error" data-testid="notices-error">
@@ -74,7 +76,7 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
       <div className="toolbar">
         <input
           type="search"
-          placeholder="Search by title"
+          placeholder={t('notices.search')}
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
@@ -84,12 +86,12 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
         />
         {search && (
           <button type="button" className="secondary" onClick={() => setSearch('')} data-testid="notice-search-clear">
-            Clear
+            {t('notices.clear')}
           </button>
         )}
       </div>
 
-      {data && data.items.length === 0 && <p data-testid="notices-empty">No notices found</p>}
+      {data && data.items.length === 0 && <p data-testid="notices-empty">{t('notices.empty')}</p>}
 
       <div className="stack" data-testid="notice-list">
         {data?.items.map((notice) =>
@@ -99,7 +101,7 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
             <article key={notice.id} className="card notice" data-testid="notice-item">
               <h3 data-testid="notice-item-title">{notice.title}</h3>
               <time dateTime={notice.createdAt} data-testid="notice-item-date">
-                {new Date(notice.createdAt).toLocaleString()}
+                {formatDateTime(notice.createdAt)}
               </time>
               <p data-testid="notice-item-body">{notice.body}</p>
               {canManage && (
@@ -110,10 +112,10 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
                     onClick={() => setEditing(notice)}
                     data-testid="notice-edit"
                   >
-                    Edit
+                    {t('notices.edit')}
                   </button>
                   <button type="button" className="danger" onClick={() => setDeleting(notice)} data-testid="notice-delete">
-                    Delete
+                    {t('notices.delete')}
                   </button>
                 </div>
               )}
@@ -125,10 +127,10 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
       {data && data.totalPages > 1 && (
         <div className="pagination" data-testid="notices-pagination">
           <button type="button" className="secondary" disabled={page <= 1} onClick={() => setPage(page - 1)} data-testid="page-prev">
-            Previous
+            {t('notices.previous')}
           </button>
           <span data-testid="page-indicator">
-            Page {data.page} of {data.totalPages}
+            {t('notices.page', { page: data.page, total: data.totalPages })}
           </span>
           <button
             type="button"
@@ -137,16 +139,16 @@ export function NoticesPage({ canManage }: { canManage: boolean }) {
             onClick={() => setPage(page + 1)}
             data-testid="page-next"
           >
-            Next
+            {t('notices.next')}
           </button>
         </div>
       )}
 
       {deleting && (
         <ConfirmDialog
-          title="Delete notice"
-          message={`Are you sure you want to delete "${deleting.title}"?`}
-          confirmLabel="Delete"
+          title={t('notices.deleteTitle')}
+          message={t('notices.deleteMessage', { title: deleting.title })}
+          confirmLabel={t('notices.delete')}
           onConfirm={confirmDelete}
           onCancel={() => setDeleting(null)}
         />
